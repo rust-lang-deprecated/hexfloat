@@ -7,9 +7,9 @@ A Rust syntax extension to create floating point literals from hexadecimal strin
 Add this to your `Cargo.toml`:
 
 ```toml
-[dependencies.hexfloat]
+[dependencies]
 
-git = "https://github.com/rust-lang/hexfloat"
+hexfloat = "*"
 ```
 
 and this to your crate root:
