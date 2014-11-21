@@ -1,8 +1,16 @@
 [package]
 
 name = "hexfloat"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["The Rust Project Developers"]
+
+license = "MIT/Apache-2.0"
+repository = "https://github.com/rust-lang/hexfloat"
+homepage = "https://github.com/rust-lang/hexfloat"
+keywords = ["plugin", "macro", "floating-point", "numerics"]
+description = """
+Syntax extension to create floating point literals from hexadecimal strings
+"""
 
 [lib]
 
