@@ -8,8 +8,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![feature(phase)]
-#[phase(plugin)]
+#![feature(plugin)]
+#[plugin]
 extern crate hexfloat;
 
 #[test]
