@@ -9,7 +9,9 @@
 // except according to those terms.
 
 #![feature(plugin)]
-#[plugin]
+#![allow(unstable)]
+
+#[plugin] #[no_link]
 extern crate hexfloat;
 
 #[test]
@@ -25,4 +27,3 @@ fn main() {
     let g = hexfloat!("0x10.0p4", f32);
     assert_eq!(f,g);
 }
-

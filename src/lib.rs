@@ -33,7 +33,8 @@
 //! * [ExploringBinary: hexadecimal floating point constants]
 //!   (http://www.exploringbinary.com/hexadecimal-floating-point-constants/)
 
-#![feature(plugin_registrar)]
+#![feature(plugin_registrar, int_uint)]
+#![allow(unstable)]
 
 extern crate syntax;
 extern crate rustc;
