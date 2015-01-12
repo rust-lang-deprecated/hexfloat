@@ -9,7 +9,7 @@ Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
 
-hexfloat = "*"
+exfloat = "*"
 ```
 
 and this to your crate root:
