@@ -1,4 +1,4 @@
-# hexfloat
+ hexfloat
 
 A Rust syntax extension to create floating point literals from hexadecimal strings.
 
