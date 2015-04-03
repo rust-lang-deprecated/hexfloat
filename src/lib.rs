@@ -33,16 +33,14 @@
 //! * [ExploringBinary: hexadecimal floating point constants]
 //!   (http://www.exploringbinary.com/hexadecimal-floating-point-constants/)
 
-#![feature(plugin_registrar, int_uint)]
-#![allow(unstable)]
-
+#![feature(plugin_registrar, rustc_private)]
 extern crate syntax;
 extern crate rustc;
 
 use syntax::ast;
 use syntax::codemap::{Span, mk_sp};
 use syntax::ext::base;
-use syntax::ext::base::{ExtCtxt, MacExpr};
+use syntax::ext::base::{ExtCtxt, MacEager};
 use syntax::ext::build::AstBuilder;
 use syntax::parse::token;
 use syntax::ptr::P;
@@ -55,7 +53,7 @@ pub fn plugin_registrar(reg: &mut Registry) {
 
 //Check if the literal is valid (as LLVM expects),
 //and return a descriptive error if not.
-fn hex_float_lit_err(s: &str) -> Option<(uint, String)> {
+fn hex_float_lit_err(s: &str) -> Option<(usize, String)> {
     let mut chars = s.chars().peekable();
     let mut i = 0;
     if chars.peek() == Some(&'-') { chars.next(); i+= 1 }
@@ -65,13 +63,13 @@ fn hex_float_lit_err(s: &str) -> Option<(uint, String)> {
     if chars.next() != Some('x') {
         return Some((i, "Expected 'x'".to_string()));
     } i+=1;
-    let mut d_len = 0i;
-    for _ in chars.take_while(|c| c.is_digit(16)) { chars.next(); i+=1; d_len += 1;}
+    let mut d_len = 0isize;
+    for _ in chars.clone().take_while(|c| c.is_digit(16)) { chars.next(); i+=1; d_len += 1;}
     if chars.next() != Some('.') {
         return Some((i, "Expected '.'".to_string()));
     } i+=1;
-    let mut f_len = 0i;
-    for _ in chars.take_while(|c| c.is_digit(16)) { chars.next(); i+=1; f_len += 1;}
+    let mut f_len = 0isize;
+    for _ in chars.clone().take_while(|c| c.is_digit(16)) { chars.next(); i+=1; f_len += 1;}
     if d_len == 0 && f_len == 0 {
         return Some((i, "Expected digits before or after decimal \
                          point".to_string()));
@@ -80,8 +78,8 @@ fn hex_float_lit_err(s: &str) -> Option<(uint, String)> {
         return Some((i, "Expected 'p'".to_string()));
     } i+=1;
     if chars.peek() == Some(&'-') { chars.next(); i+= 1 }
-    let mut e_len = 0i;
-    for _ in chars.take_while(|c| c.is_numeric()) { chars.next(); i+=1; e_len += 1}
+    let mut e_len = 0isize;
+    for _ in chars.clone().take_while(|c| c.is_numeric()) { chars.next(); i+=1; e_len += 1}
     if e_len == 0 {
         return Some((i, "Expected exponent digits".to_string()));
     }
@@ -97,7 +95,7 @@ pub fn expand_syntax_ext(cx: &mut ExtCtxt, sp: Span, tts: &[ast::TokenTree])
 
     let ty = match ty_lit {
         None => None,
-        Some(Ident{ident, span}) => match token::get_ident(ident).get() {
+        Some(Ident{ident, span}) => match token::get_ident(ident).as_ref() {
             "f32" => Some(ast::TyF32),
             "f64" => Some(ast::TyF64),
             _ => {
@@ -126,15 +124,15 @@ pub fn expand_syntax_ext(cx: &mut ExtCtxt, sp: Span, tts: &[ast::TokenTree])
     };
 
     {
-        let err = hex_float_lit_err(s.get());
+        let err = hex_float_lit_err(s.as_ref());
         match err {
             Some((err_pos, err_str)) => {
-                let pos = expr.span.lo + syntax::codemap::Pos::from_uint(err_pos + 1);
+                let pos = expr.span.lo + syntax::codemap::Pos::from_usize(err_pos + 1);
                 let span = syntax::codemap::mk_sp(pos,pos);
                 cx.span_err(span,
                             format!("invalid hex float literal in hexfloat!: \
                                      {}",
-                                    err_str).as_slice());
+                                    err_str).as_ref());
                 return base::DummyResult::expr(sp);
             }
             _ => ()
@@ -145,7 +143,7 @@ pub fn expand_syntax_ext(cx: &mut ExtCtxt, sp: Span, tts: &[ast::TokenTree])
         None => ast::LitFloatUnsuffixed(s),
         Some (ty) => ast::LitFloat(s, ty)
     };
-    MacExpr::new(cx.expr_lit(sp, lit))
+    MacEager::expr(cx.expr_lit(sp, lit))
 }
 
 struct Ident {

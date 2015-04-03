@@ -8,11 +8,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![feature(plugin)]
-#![allow(unstable)]
 
-#[plugin] #[no_link]
-extern crate hexfloat;
+#![feature(plugin)]
+#![plugin(hexfloat)]
+
+
 
 #[test]
 fn main() {
